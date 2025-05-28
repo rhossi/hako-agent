@@ -1,0 +1,93 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hako-agent
+  labels:
+    app: hako-agent
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hako-agent
+  template:
+    metadata:
+      labels:
+        app: hako-agent
+    spec:
+      containers:
+        - name: hako-agent
+          image: us-chicago-1.ocir.io/ax7oybsfq96x/hako-agent/hako-agent:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8000
+          env:
+            - name: OPENAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: hako-agent-secrets
+                  key: OPENAI_API_KEY
+            - name: XAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: hako-agent-secrets
+                  key: XAI_API_KEY
+            - name: CO_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: hako-agent-secrets
+                  key: CO_API_KEY
+            - name: LANGSMITH_TRACING
+              valueFrom:
+                secretKeyRef:
+                  name: hako-agent-secrets
+                  key: LANGSMITH_TRACING
+            - name: LANGSMITH_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: hako-agent-secrets
+                  key: LANGSMITH_API_KEY
+            - name: COMPARTMENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: hako-agent-secrets
+                  key: COMPARTMENT_ID
+            - name: AUTH_TYPE
+              valueFrom:
+                secretKeyRef:
+                  name: hako-agent-secrets
+                  key: AUTH_TYPE
+            - name: CONFIG_PROFILE
+              valueFrom:
+                secretKeyRef:
+                  name: hako-agent-secrets
+                  key: CONFIG_PROFILE
+            - name: OCI_INFERENCE_ENDPOINT
+              valueFrom:
+                secretKeyRef:
+                  name: hako-agent-secrets
+                  key: OCI_INFERENCE_ENDPOINT
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: hako-agent-secrets
+                  key: DB_USERNAME
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: hako-agent-secrets
+                  key: DB_PASSWORD
+            - name: SERPER_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: hako-agent-secrets
+                  key: SERPER_API_KEY
+            - name: EMBEDDINGS_TABLE_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: hako-agent-secrets
+                  key: EMBEDDINGS_TABLE_NAME
+            - name: TAVILY_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: hako-agent-secrets
+                  key: TAVILY_API_KEY

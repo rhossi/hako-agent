@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - COMPARTMENT_ID=${COMPARTMENT_ID}
+      - AUTH_TYPE=${AUTH_TYPE}
+      - CONFIG_PROFILE=${CONFIG_PROFILE}
+      - OCI_INFERENCE_ENDPOINT=${OCI_INFERENCE_ENDPOINT}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - .:/app
+    restart: unless-stopped 

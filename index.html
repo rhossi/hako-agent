@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Hako</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            background-color: #343541;
+            color: #fff;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background-color: #343541;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: opacity 0.2s;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .logo:hover {
+            opacity: 0.9;
+        }
+
+        .logo img {
+            width: 24px;
+            height: 24px;
+        }
+
+        .logo-text {
+            font-weight: 700;
+            font-size: 18px;
+            color: #fff;
+            letter-spacing: 0.5px;
+        }
+
+        .logo-text span {
+            display: block;
+            font-size: 12px;
+            color: #E34234;
+            font-weight: 500;
+            letter-spacing: 2px;
+        }
+
+        .logo .message-avatar {
+            width: 40px;
+            height: 40px;
+            margin-right: 4px;
+        }
+
+        .chat-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            background-color: #343541;
+        }
+
+        .message {
+            display: flex;
+            gap: 12px;
+            padding: 12px 0;
+            max-width: 800px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .user-message {
+            flex-direction: row-reverse;
+            justify-content: flex-end;
+            width: 100%;
+            display: flex;
+            padding-right: 20px;
+            margin-left: auto;
+        }
+
+        .assistant-message {
+            padding-left: 20px;
+            width: 100%;
+            background-color: transparent;
+        }
+
+        .message-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 4px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px;
+        }
+
+        .user-message .message-avatar {
+            background-color: #2C2C3A;
+            border-radius: 50%;
+            margin-left: 8px;
+        }
+
+        .assistant-message .message-avatar {
+            background-color: #E34234;
+            display: flex;
+        }
+
+        .message-content {
+            line-height: 1.5;
+            font-size: 14px;
+            padding: 0;
+        }
+
+        .user-message .message-content {
+            background-color: #2C2C3A;
+            color: #fff;
+            padding: 12px 16px;
+            border-radius: 12px;
+            border-top-right-radius: 4px;
+            max-width: 60%;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            margin-left: auto;
+            text-align: left;
+        }
+
+        .assistant-message .message-content {
+            flex: 1;
+            padding-right: 20px;
+            color: #ececf1;
+        }
+
+        /* Ensure code blocks don't overflow in user messages */
+        .user-message .message-content pre {
+            max-width: 100%;
+            overflow-x: auto;
+        }
+
+        .user-message .message-content code {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        /* Update the human icon for user messages */
+        .user-message .message-avatar svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .input-container {
+            padding: 20px 0;
+            background-color: #343541;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .input-wrapper {
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            position: relative;
+            padding: 0 20px;
+        }
+
+        #user-input {
+            flex: 1;
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            padding: 14px 48px 14px 16px;
+            border-radius: 20px;
+            border: 1px solid #565869;
+            background-color: #40414f;
+            color: #fff;
+            font-size: 14px;
+            resize: none;
+            min-height: 24px;
+            max-height: 200px;
+            line-height: 1.5;
+            box-shadow: 0 0 0 1px #565869;
+        }
+
+        .input-buttons {
+            position: absolute;
+            right: 32px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .icon-button {
+            background: none;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            padding: 4px;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icon-button:hover {
+            opacity: 1;
+        }
+
+        .icon-button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        #user-input:focus {
+            outline: none;
+            border-color: #565869;
+            box-shadow: 0 0 0 1px #565869;
+        }
+
+        /* Markdown Styling */
+        .markdown-content {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #E8E9EA;
+        }
+
+        .markdown-content hr {
+            border: none;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin: 1.5em 0;
+            width: 100%;
+        }
+
+        .markdown-content p {
+            margin-bottom: 1em;
+        }
+
+        .markdown-content ul {
+            margin-left: 1.5em;
+            margin-bottom: 1em;
+        }
+
+        .markdown-content li {
+            margin-bottom: 0.5em;
+        }
+
+        .markdown-content code {
+            background-color: #383932;
+            padding: 0.2em 0.4em;
+            border-radius: 3px;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+
+        .loading-spinner {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 0;
+            width: 100%;
+        }
+
+        .spinner {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background-color: #E34234;
+            animation: pulse 1s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(0.3);
+                opacity: 0.6;
+            }
+            50% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(0.3);
+                opacity: 0.6;
+            }
+        }
+
+        .loading-dots {
+            display: none;
+        }
+
+        .url-link {
+            color: #E34234;
+            text-decoration: none;
+            border-bottom: 1px solid rgba(227, 66, 52, 0.5);
+        }
+
+        .url-link:hover {
+            border-bottom: 1px solid #E34234;
+            text-decoration: none;
+        }
+
+        /* Update SVG colors to match the background */
+        .message-avatar svg {
+            color: #fff;
+        }
+
+        .assistant-message .message-content a {
+            color: #E34234;
+            text-decoration: none;
+            border-bottom: 1px solid rgba(227, 66, 52, 0.5);
+        }
+
+        .assistant-message .message-content a:hover {
+            border-bottom: 1px solid #E34234;
+            text-decoration: none;
+        }
+
+        .source {
+            margin-top: 16px;
+            font-size: 0.9em;
+            color: rgba(236, 236, 241, 0.8);
+        }
+
+        .source a {
+            color: #E34234;
+            text-decoration: none;
+            border-bottom: 1px solid rgba(227, 66, 52, 0.5);
+            margin-left: 8px;
+        }
+
+        .source a:hover {
+            border-bottom: 1px solid #E34234;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="https://www.ancestry.com/first-name-meaning/hako" target="_blank" class="logo">
+            <div class="message-avatar">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M5 7h14c1.1 0 2 .9 2 2v8c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2V9c0-1.1.9-2 2-2z" stroke-linecap="round"/>
+                    <path d="M7 7V5c0-1.1.9-2 2-2h6c1.1 0 2 .9 2 2v2" stroke-linecap="round"/>
+                    <circle cx="8.5" cy="12" r="1"/>
+                    <circle cx="15.5" cy="12" r="1"/>
+                    <path d="M8.5 15.5c2 1 5 1 7 0" stroke-linecap="round"/>
+                    <path d="M3 9l2-2M21 9l-2-2" stroke-linecap="round"/>
+                </svg>
+            </div>
+            <div class="logo-text">
+                HAKO
+                <span>PROJECT</span>
+            </div>
+        </a>
+    </div>
+    <div class="chat-container" id="chat-container">
+        <div class="message assistant-message">
+            <div class="message-avatar">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M5 7h14c1.1 0 2 .9 2 2v8c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2V9c0-1.1.9-2 2-2z" stroke-linecap="round"/>
+                    <path d="M7 7V5c0-1.1.9-2 2-2h6c1.1 0 2 .9 2 2v2" stroke-linecap="round"/>
+                    <circle cx="8.5" cy="12" r="1"/>
+                    <circle cx="15.5" cy="12" r="1"/>
+                    <path d="M8.5 15.5c2 1 5 1 7 0" stroke-linecap="round"/>
+                    <path d="M3 9l2-2M21 9l-2-2" stroke-linecap="round"/>
+                </svg>
+            </div>
+            <div class="message-content markdown-content">
+                Hey there! I'm Hako, your friendly Solutions Architect 🤖 🧰 Ready to help you find the perfect solution — what are we tackling today?
+            </div>
+        </div>
+    </div>
+    <div class="input-container">
+        <div class="input-wrapper">
+            <textarea id="user-input" placeholder="Type a message..." rows="1"></textarea>
+            <div class="input-buttons">
+                <button class="icon-button" id="send-button">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+                    </svg>
+                </button>
+                <button class="icon-button" id="clear-button">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 6L6 18M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const chatContainer = document.getElementById('chat-container');
+        const userInput = document.getElementById('user-input');
+        const sendButton = document.getElementById('send-button');
+        const clearButton = document.getElementById('clear-button');
+
+        // Auto-resize textarea
+        userInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
+
+        // Handle Enter key (without Shift for sending)
+        userInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        // Send button click handler
+        sendButton.addEventListener('click', sendMessage);
+
+        // Clear conversation button handler
+        clearButton.addEventListener('click', clearConversation);
+
+        // Configure marked
+        marked.setOptions({
+            breaks: true,
+            gfm: true,
+            headerIds: false
+        });
+
+        async function sendMessage() {
+            const message = userInput.value.trim();
+            if (!message) return;
+
+            // Add user message to chat (with markdown support)
+            addMessage(marked.parse(message), 'user');
+            userInput.value = '';
+            userInput.style.height = 'auto';
+            
+            // Scroll to bottom after user message
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+            
+            // Disable input while waiting for response
+            userInput.disabled = true;
+            sendButton.disabled = true;
+
+            // Add loading spinner
+            const loadingMessage = document.createElement('div');
+            loadingMessage.className = 'loading-spinner';
+            loadingMessage.innerHTML = '<div class="spinner"></div>';
+            chatContainer.appendChild(loadingMessage);
+            
+            // Scroll again after adding loading spinner
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+
+            try {
+                const response = await fetch(`/query?question=${encodeURIComponent(message)}`);
+                const data = await response.json();
+
+                // Remove loading spinner
+                loadingMessage.remove();
+
+                // Add assistant's response with markdown support
+                let responseHtml = marked.parse(convertUrlsToLinks(data.response));
+                
+                // Add sources if available
+                if (data.sources && data.sources.length > 0) {
+                    responseHtml += '<div class="source">Sources:<br>';
+                    data.sources.forEach(source => {
+                        if (source.solution_url) {
+                            responseHtml += `<a href="${source.solution_url}" target="_blank">${source.solution_name || 'Solution'}</a><br>`;
+                        }
+                    });
+                    responseHtml += '</div>';
+                }
+
+                addMessage(responseHtml, 'assistant');
+                
+                // Scroll to bottom after assistant response
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            } catch (error) {
+                console.error('Error:', error);
+                loadingMessage.remove();
+                addMessage('Sorry, there was an error processing your request.', 'assistant');
+                
+                // Scroll to bottom after error message
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+
+            // Re-enable input
+            userInput.disabled = false;
+            sendButton.disabled = false;
+            userInput.focus();
+        }
+
+        async function clearConversation() {
+            try {
+                const response = await fetch('/clear-memory', {
+                    method: 'POST'
+                });
+                
+                // Clear the chat container except for the welcome message
+                while (chatContainer.children.length > 1) {
+                    chatContainer.removeChild(chatContainer.lastChild);
+                }
+            } catch (error) {
+                console.error('Error clearing conversation:', error);
+            }
+        }
+
+        function convertUrlsToLinks(text) {
+            // // First, protect existing markdown links
+            // const markdownLinkPattern = /\[([^\]]+)\]\(([^)]+)\)/g;
+            // const protectedText = text.replace(markdownLinkPattern, (match, text, url) => {
+            //     return `<a href="${url}" target="_blank" class="url-link">${text}</a>`;
+            // });
+
+            // // Then convert plain URLs to links
+            // const urlPattern = /(https?:\/\/[^\s<]+)/g;
+            // return protectedText.replace(urlPattern, (url) => {
+            //     // Remove any trailing punctuation or special characters
+            //     const cleanUrl = url.replace(/[.,;:!?)\]]+$/, '');
+            //     return `<a href="${cleanUrl}" target="_blank" class="url-link">${cleanUrl}</a>`;
+            // });
+            return text;
+        }
+
+        function addMessage(content, sender, isLoading = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}-message`;
+            
+            const avatarDiv = document.createElement('div');
+            avatarDiv.className = 'message-avatar';
+            
+            // Different icons for user and assistant
+            if (sender === 'user') {
+                avatarDiv.innerHTML = `
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="8" r="5"/>
+                        <path d="M20 21a8 8 0 10-16 0"/>
+                    </svg>
+                `;
+            } else {
+                avatarDiv.innerHTML = `
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M5 7h14c1.1 0 2 .9 2 2v8c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2V9c0-1.1.9-2 2-2z" stroke-linecap="round"/>
+                        <path d="M7 7V5c0-1.1.9-2 2-2h6c1.1 0 2 .9 2 2v2" stroke-linecap="round"/>
+                        <circle cx="8.5" cy="12" r="1"/>
+                        <circle cx="15.5" cy="12" r="1"/>
+                        <path d="M8.5 15.5c2 1 5 1 7 0" stroke-linecap="round"/>
+                        <path d="M3 9l2-2M21 9l-2-2" stroke-linecap="round"/>
+                    </svg>
+                `;
+            }
+            messageDiv.appendChild(avatarDiv);
+            
+            // Add content
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content markdown-content';
+            contentDiv.innerHTML = content;
+            messageDiv.appendChild(contentDiv);
+            
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+            return messageDiv;
+        }
+    </script>
+</body>
+</html> 
