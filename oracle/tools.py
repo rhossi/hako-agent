@@ -12,7 +12,6 @@ OCI_INFERENCE_ENDPOINT = os.getenv("OCI_INFERENCE_ENDPOINT")
 EMBEDDINGS_TABLE_NAME = os.getenv("EMBEDDINGS_TABLE_NAME")
 TAVILY_API_KEY = os.getenv("TAVILY_API_KEY")
 
-
 def _query_writer(question: str):
     search_llm = ChatOpenAI(model="gpt-4.1-nano-2025-04-14")
     query_writer_instructions = """
@@ -48,14 +47,11 @@ def search_oracle_marketplace(question: str):
     """Search the Oracle Cloud Marketplace for applications and solution integrators (SIs) that match the customer's request"""
     print("search_oracle_marketplace")
 
-    # Initialize embeddings
     embeddings = OCIGenAIEmbeddings(
         model_id="cohere.embed-multilingual-v3.0",
         service_endpoint=OCI_INFERENCE_ENDPOINT,
         truncate="NONE",
-        compartment_id=COMPARTMENT_ID,
-        auth_type=AUTH_TYPE,
-        auth_profile=CONFIG_PROFILE
+        compartment_id=COMPARTMENT_ID
     )
 
     connection = get_oracle_connection()

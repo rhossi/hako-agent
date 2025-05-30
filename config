@@ -1,0 +1,6 @@
+[DEFAULT]
+user=ocid1.user.oc1..aaaaaaaallf5pkkgzn2qa3wwwv75lflmo37fw2ugsx2litmxp73xed7nkhra
+fingerprint=1f:c9:24:d6:a3:cf:f3:ec:e8:6a:0a:91:71:93:83:55
+key_file=/Users/felipe/.oci/oci_api_key.pem
+tenancy=ocid1.tenancy.oc1..aaaaaaaa6bqbk23yh4m74dqutp6uqeozxwx6m37cmuwkzwwpo6dvyybulb3a
+region=us-chicago-1
