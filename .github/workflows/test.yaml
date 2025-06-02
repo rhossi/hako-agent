@@ -26,4 +26,4 @@ jobs:
       run: echo "${{ secrets.OCI_AUTH_TOKEN }}" | docker login ord.ocir.io -u ${{ secrets.OCI_STORAGE_NAMESPACE}}/${{ secrets.OCI_EMAIL }} --password-stdin
 
     - name: Push the Docker image
-      run: docker push ord.ocir.io/${{ secrets.OCI_STORAGE_NAMESPACE }}/${{ secrets.OCI_REPO_NAME }}/${{ secrets.OCI_IMAGE_NAME }}
+      run: docker push ord.ocir.io/${{ secrets.OCI_STORAGE_NAMESPACE }}/${{ env.REPO_NAME }}/${{ env.IMAGE_NAME }}
