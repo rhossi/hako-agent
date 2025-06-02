@@ -20,7 +20,10 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+      run: docker build . --file Dockerfile --tag ${{ env.IMAGE_NAME }}
     
     - name: Login to OCIR
-      run: docker login ${{env.OCIR_ENDPOINT}} -u ${{ secrets.OCI_STORAGE_NAMESPACE }}/${{ secrets.OCI_EMAIL }} -p "${{ secrets.OCI_AUTH_TOKEN }}"
+      run: echo "${{ secrets.OCI_PASSWORD }}" | docker login ord.ocir.io -u ${{ secrets.OCI_USERNAME }} --password-stdin
+
+    - name: Push the Docker image
+      run: docker push ord.ocir.io/${{ secrets.OCI_STORAGE_NAMESPACE }}/${{ secrets.OCI_REPO_NAME }}/${{ secrets.OCI_IMAGE_NAME }}
