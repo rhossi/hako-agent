@@ -20,27 +20,9 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Install kubectl
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y apt-transport-https ca-certificates curl gnupg
-        sudo mkdir -p /etc/apt/keyrings
-        curl -fsSLo /etc/apt/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
-        echo "deb [signed-by=/etc/apt/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | \
-          sudo tee /etc/apt/sources.list.d/kubernetes.list > /dev/null
-        sudo apt-get update
-        sudo apt-get install -y kubectl
-
     - name: Build the Docker image
       run: docker build . --file Dockerfile --tag ${{ env.IMAGE_NAME }}
     
-    - name: Configure kubeconfig
-      run: |
-        mkdir -p $HOME/.kube
-        echo "${secrets.KUBECONFIG_DATA}" > $HOME/.kube/config
-      env:
-        KUBECONFIG_DATA: ${{ secrets.KUBECONFIG_DATA }}
-
     - name: Login to OCIR
       run: echo "${{ secrets.OCI_AUTH_TOKEN }}" | docker login ord.ocir.io -u ${{ secrets.OCI_STORAGE_NAMESPACE}}/${{ secrets.OCI_EMAIL }} --password-stdin
 
@@ -49,4 +31,13 @@ jobs:
 
     - name: Push the Docker image
       run: docker push ord.ocir.io/${{ secrets.OCI_STORAGE_NAMESPACE }}/${{ env.REPO_NAME }}/${{ env.IMAGE_NAME }}
+
+    - name: Deploy to Kubernetes
+      uses: actions-hub/kubectl@master
+      env:
+        KUBE_CONFIG: ${{ secrets.KUBECONFIG_DATA }}
+      with:
+        args: set image hako-agent \
+          ${{ env.IMAGE_NAME }} \
+          --namespace hako-agent
   
