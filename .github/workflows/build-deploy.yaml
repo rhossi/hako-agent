@@ -23,14 +23,7 @@ jobs:
 
     - name: Install kubectl
       run: |
-        set -e
-        VERSION=$(curl -s https://dl.k8s.io/release/stable.txt)
-        if [ -z "$VERSION" ]; then
-          echo "Failed to fetch kubectl version from Kubernetes release site"
-          exit 1
-        fi
-        echo "Installing kubectl $VERSION"
-        curl -LO "https://dl.k8s.io/release/${VERSION}/bin/linux/amd64/kubectl"
+        curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
         chmod +x kubectl
         sudo mv kubectl /usr/local/bin/kubectl
         kubectl version --client
