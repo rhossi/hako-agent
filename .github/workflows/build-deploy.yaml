@@ -28,6 +28,11 @@ jobs:
         sudo mv kubectl /usr/local/bin/kubectl
         kubectl version --client
 
+    - name: Install OCI CLI
+      run: |
+        curl -L https://raw.githubusercontent.com/oracle/oci-cli/master/scripts/install/install.sh | bash -s -- --accept-all-defaults
+        echo "$HOME/bin" >> $GITHUB_PATH
+
     - name: Configure kubeconfig
       run: |
         mkdir -p $HOME/.kube
