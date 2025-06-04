@@ -32,7 +32,7 @@ jobs:
     - name: Push the Docker image
       run: docker push ord.ocir.io/${{ secrets.OCI_STORAGE_NAMESPACE }}/${{ env.REPO_NAME }}/${{ env.IMAGE_NAME }}
 
-    - name: Deploy to Kubernetes
+    - name: Deploy to OKE
       uses: actions-hub/kubectl@master
       env:
         KUBE_CONFIG: ${{ secrets.KUBECONFIG_DATA }}
