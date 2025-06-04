@@ -6,8 +6,8 @@ import os
 from langchain_community.embeddings import OCIGenAIEmbeddings
 
 COMPARTMENT_ID = os.getenv("COMPARTMENT_ID")
-AUTH_TYPE = os.getenv("AUTH_TYPE")
-CONFIG_PROFILE = os.getenv("CONFIG_PROFILE")
+# AUTH_TYPE = os.getenv("AUTH_TYPE")
+# CONFIG_PROFILE = os.getenv("CONFIG_PROFILE")
 OCI_INFERENCE_ENDPOINT = os.getenv("OCI_INFERENCE_ENDPOINT")
 EMBEDDINGS_TABLE_NAME = os.getenv("EMBEDDINGS_TABLE_NAME")
 TAVILY_API_KEY = os.getenv("TAVILY_API_KEY")
@@ -29,7 +29,7 @@ def _query_writer(question: str):
     return query
 
 def _tavily_search(query: str, **kwargs):
-    client = TavilyClient(os.environ['TAVILY_API_KEY'])
+    client = TavilyClient(TAVILY_API_KEY)
     return client.search(query=query,**kwargs)
 
 def web_search(query: str):
@@ -43,16 +43,23 @@ def search_oracle_customer_references(question: str):
     query = _query_writer(question)
     return _tavily_search(query=query,search_depth="advanced",include_domains=["oracle.com/customers"])
 
+def _create_oci_genai_embeddings():
+    app_env = os.getenv("APP_ENV", "dev").lower()
+    auth_type = "API_KEY" if app_env == "dev" else "RESOURCE_PRINCIPAL"
+
+    return OCIGenAIEmbeddings(
+        model_id="cohere.embed-multilingual-v3.0",
+        service_endpoint=OCI_INFERENCE_ENDPOINT,
+        truncate="NONE",
+        compartment_id=COMPARTMENT_ID,
+        auth_type=auth_type,
+    )
+
 def search_oracle_marketplace(question: str):
     """Search the Oracle Cloud Marketplace for applications and solution integrators (SIs) that match the customer's request"""
     print("search_oracle_marketplace")
 
-    embeddings = OCIGenAIEmbeddings(
-        model_id="cohere.embed-multilingual-v3.0",
-        service_endpoint=OCI_INFERENCE_ENDPOINT,
-        truncate="NONE",
-        compartment_id=COMPARTMENT_ID
-    )
+    embeddings = _create_oci_genai_embeddings()
 
     connection = get_oracle_connection()
 
