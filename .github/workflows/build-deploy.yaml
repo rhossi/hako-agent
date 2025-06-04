@@ -22,12 +22,18 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Install kubectl
-      run: |
-        VERSION=$(curl -s https://dl.k8s.io/release/stable.txt)
-        curl -LO "https://dl.k8s.io/release/${VERSION}/bin/linux/amd64/kubectl"
-        chmod +x kubectl
-        sudo mv kubectl /usr/local/bin/kubectl
-        kubectl version --client
+    run: |
+      set -e
+      VERSION=$(curl -s https://dl.k8s.io/release/stable.txt)
+      if [ -z "$VERSION" ]; then
+        echo "Failed to fetch kubectl version from Kubernetes release site"
+        exit 1
+      fi
+      echo "Installing kubectl $VERSION"
+      curl -LO "https://dl.k8s.io/release/${VERSION}/bin/linux/amd64/kubectl"
+      chmod +x kubectl
+      sudo mv kubectl /usr/local/bin/kubectl
+      kubectl version --client
 
     - name: Configure kubeconfig
       run: |
