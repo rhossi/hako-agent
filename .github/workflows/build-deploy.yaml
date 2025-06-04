@@ -10,11 +10,12 @@ env:
   REPO_NAME: "hako-agent"
   IMAGE_NAME: "hako-agent:latest"
   OCIR_ENDPOINT: "ord.ocir.io"
+  K8S_NAMESPACE: "hako-agent"
+  DEPLOYMENT_NAME: "hako-agent"
+  CONTAINER_NAME: "hako-agent"
 
 jobs:
-
   build:
-
     runs-on: ubuntu-latest
 
     steps:
@@ -22,31 +23,31 @@ jobs:
 
     - name: Install kubectl
       run: |
-        curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+        VERSION=$(curl -s https://dl.k8s.io/release/stable.txt)
+        curl -LO "https://dl.k8s.io/release/${VERSION}/bin/linux/amd64/kubectl"
         chmod +x kubectl
         sudo mv kubectl /usr/local/bin/kubectl
         kubectl version --client
-        
+
     - name: Configure kubeconfig
       run: |
         mkdir -p $HOME/.kube
-        echo "${{secrets.KUBECONFIG_DATA }}" > $HOME/.kube/config
+        echo "${{ secrets.KUBECONFIG_DATA }}" | base64 -d > $HOME/.kube/config
 
     - name: Build the Docker image
       run: docker build . --file Dockerfile --tag ${{ env.IMAGE_NAME }}
-    
+
     - name: Login to OCIR
-      run: echo "${{ secrets.OCI_AUTH_TOKEN }}" | docker login ord.ocir.io -u ${{ secrets.OCI_STORAGE_NAMESPACE}}/${{ secrets.OCI_EMAIL }} --password-stdin
+      run: echo "${{ secrets.OCI_AUTH_TOKEN }}" | docker login ${{ env.OCIR_ENDPOINT }} -u "${{ secrets.OCI_STORAGE_NAMESPACE }}/${{ secrets.OCI_EMAIL }}" --password-stdin
 
     - name: Tag the Docker image
-      run: docker tag ${{ env.IMAGE_NAME }} ord.ocir.io/${{ secrets.OCI_STORAGE_NAMESPACE }}/${{ env.REPO_NAME }}/${{ env.IMAGE_NAME }}
+      run: docker tag ${{ env.IMAGE_NAME }} ${{ env.OCIR_ENDPOINT }}/${{ secrets.OCI_STORAGE_NAMESPACE }}/${{ env.REPO_NAME }}/${{ env.IMAGE_NAME }}
 
     - name: Push the Docker image
-      run: docker push ord.ocir.io/${{ secrets.OCI_STORAGE_NAMESPACE }}/${{ env.REPO_NAME }}/${{ env.IMAGE_NAME }}
+      run: docker push ${{ env.OCIR_ENDPOINT }}/${{ secrets.OCI_STORAGE_NAMESPACE }}/${{ env.REPO_NAME }}/${{ env.IMAGE_NAME }}
 
     - name: Deploy new image to OKE
       run: |
-        kubectl set image hako-agent \
-          ${{ env.IMAGE_NAME }} \
-          --namespace hako-agent
-  
+        kubectl set image deployment/${{ env.DEPLOYMENT_NAME }} \
+          ${{ env.CONTAINER_NAME }}=${{ env.OCIR_ENDPOINT }}/${{ secrets.OCI_STORAGE_NAMESPACE }}/${{ env.REPO_NAME }}/${{ env.IMAGE_NAME }} \
+          --namespace ${{ env.K8S_NAMESPACE }}
