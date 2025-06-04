@@ -1,0 +1,51 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  REPO_NAME: "hako-agent"
+  IMAGE_NAME: "hako-agent:latest"
+  OCIR_ENDPOINT: "ord.ocir.io"
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install kubectl
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y apt-transport-https ca-certificates curl
+        sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
+        echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | \
+          sudo tee /etc/apt/sources.list.d/kubernetes.list
+        sudo apt-get update
+        sudo apt-get install -y kubectl
+
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile --tag ${{ env.IMAGE_NAME }}
+    
+    - name: Configure kubeconfig
+      run: |
+        mkdir -p $HOME/.kube
+        echo "${secrets.KUBECONFIG_DATA}" > $HOME/.kube/config
+      env:
+        KUBECONFIG_DATA: ${{ secrets.KUBECONFIG_DATA }}
+
+    - name: Login to OCIR
+      run: echo "${{ secrets.OCI_AUTH_TOKEN }}" | docker login ord.ocir.io -u ${{ secrets.OCI_STORAGE_NAMESPACE}}/${{ secrets.OCI_EMAIL }} --password-stdin
+
+    - name: Tag the Docker image
+      run: docker tag ${{ env.IMAGE_NAME }} ord.ocir.io/${{ secrets.OCI_STORAGE_NAMESPACE }}/${{ env.REPO_NAME }}/${{ env.IMAGE_NAME }}
+
+    - name: Push the Docker image
+      run: docker push ord.ocir.io/${{ secrets.OCI_STORAGE_NAMESPACE }}/${{ env.REPO_NAME }}/${{ env.IMAGE_NAME }}
+  
