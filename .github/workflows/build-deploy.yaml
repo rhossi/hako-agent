@@ -43,6 +43,8 @@ jobs:
 
     - name: Configure OCI CLI
       run: |
+        mkdir -p $HOME/.keys
+        echo "${{ secrets.CICD_PEM }}" > $HOME/.keys/cicd.pem
         mkdir -p $HOME/.oci
         echo "${{ secrets.OCICONFIG_DATA }}" > $HOME/.oci/config
 
