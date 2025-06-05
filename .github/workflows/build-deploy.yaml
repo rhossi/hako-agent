@@ -41,6 +41,11 @@ jobs:
         # curl -L https://raw.githubusercontent.com/oracle/oci-cli/master/scripts/install/install.sh | bash -s -- --accept-all-defaults
         # echo "$HOME/bin" >> $GITHUB_PATH
 
+    - name: Configure OCI CLI
+      run: |
+        mkdir -p $HOME/.oci
+        echo "${{ secrets.OCICONFIG_DATA }}" > $HOME/.oci/config
+
     - name: Configure kubeconfig
       run: |
         mkdir -p $HOME/.kube
