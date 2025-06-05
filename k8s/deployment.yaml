@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: hako-agent
+  name: deployment/hako-agent
   labels:
     app: hako-agent
 spec:
@@ -51,16 +51,6 @@ spec:
                 secretKeyRef:
                   name: hako-agent-secrets
                   key: COMPARTMENT_ID
-            # - name: AUTH_TYPE
-            #   valueFrom:
-            #     secretKeyRef:
-            #       name: hako-agent-secrets
-            #       key: AUTH_TYPE
-            # - name: CONFIG_PROFILE
-            #   valueFrom:
-            #     secretKeyRef:
-            #       name: hako-agent-secrets
-            #       key: CONFIG_PROFILE
             - name: OCI_INFERENCE_ENDPOINT
               valueFrom:
                 secretKeyRef:

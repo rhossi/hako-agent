@@ -9,11 +9,12 @@ on:
 env:
   REPO_NAME: "hako-agent"
   IMAGE_NAME: "hako-agent:latest"
+  IMAGE_TAG: "hako-agent:${{ github.sha }}"
   OCIR_ENDPOINT: "ord.ocir.io"
   K8S_NAMESPACE: "hako-agent"
   DEPLOYMENT_NAME: "hako-agent"
   CONTAINER_NAME: "hako-agent"
-
+  VERSION: ${{ github.sha }}
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -30,8 +31,15 @@ jobs:
 
     - name: Install OCI CLI
       run: |
-        curl -L https://raw.githubusercontent.com/oracle/oci-cli/master/scripts/install/install.sh | bash -s -- --accept-all-defaults
-        echo "$HOME/bin" >> $GITHUB_PATH
+        sudo apt update
+        sudo apt install build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev libsqlite3-dev wget libbz2-dev
+        sudo apt update && sudo apt install python3 python3-pip python3-venv
+        python3 -m venv venv
+        source venv/bin/activate
+        pip install --upgrade pip
+        pip install oci-cli
+        # curl -L https://raw.githubusercontent.com/oracle/oci-cli/master/scripts/install/install.sh | bash -s -- --accept-all-defaults
+        # echo "$HOME/bin" >> $GITHUB_PATH
 
     - name: Configure kubeconfig
       run: |
@@ -39,19 +47,19 @@ jobs:
         echo "${{ secrets.KUBECONFIG_DATA }}" | base64 -d > $HOME/.kube/config
 
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag ${{ env.IMAGE_NAME }}
+      run: docker build . --file Dockerfile -t ${{ env.IMAGE_TAG }}
 
     - name: Login to OCIR
       run: echo "${{ secrets.OCI_AUTH_TOKEN }}" | docker login ${{ env.OCIR_ENDPOINT }} -u "${{ secrets.OCI_STORAGE_NAMESPACE }}/${{ secrets.OCI_EMAIL }}" --password-stdin
 
     - name: Tag the Docker image
-      run: docker tag ${{ env.IMAGE_NAME }} ${{ env.OCIR_ENDPOINT }}/${{ secrets.OCI_STORAGE_NAMESPACE }}/${{ env.REPO_NAME }}/${{ env.IMAGE_NAME }}
+      run: docker tag ${{ env.IMAGE_TAG }} ${{ env.OCIR_ENDPOINT }}/${{ secrets.OCI_STORAGE_NAMESPACE }}/${{ env.REPO_NAME }}/${{ env.IMAGE_TAG }}
 
     - name: Push the Docker image
-      run: docker push ${{ env.OCIR_ENDPOINT }}/${{ secrets.OCI_STORAGE_NAMESPACE }}/${{ env.REPO_NAME }}/${{ env.IMAGE_NAME }}
+      run: docker push ${{ env.OCIR_ENDPOINT }}/${{ secrets.OCI_STORAGE_NAMESPACE }}/${{ env.REPO_NAME }}/${{ env.IMAGE_TAG }}
 
     - name: Deploy new image to OKE
       run: |
         kubectl set image deployment/${{ env.DEPLOYMENT_NAME }} \
-          ${{ env.CONTAINER_NAME }}=${{ env.OCIR_ENDPOINT }}/${{ secrets.OCI_STORAGE_NAMESPACE }}/${{ env.REPO_NAME }}/${{ env.IMAGE_NAME }} \
+          ${{ env.CONTAINER_NAME }}=${{ env.OCIR_ENDPOINT }}/${{ secrets.OCI_STORAGE_NAMESPACE }}/${{ env.REPO_NAME }}/${{ env.IMAGE_TAG }} \
           --namespace ${{ env.K8S_NAMESPACE }}
