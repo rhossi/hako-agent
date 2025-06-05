@@ -11,7 +11,7 @@ env:
   IMAGE_NAME: "hako-agent:latest"
   IMAGE_TAG: "hako-agent:${{ github.sha }}"
   OCIR_ENDPOINT: "ord.ocir.io"
-  K8S_NAMESPACE: "hako-agent"
+  K8S_NAMESPACE: "default"
   DEPLOYMENT_NAME: "hako-agent"
   CONTAINER_NAME: "hako-agent"
   VERSION: ${{ github.sha }}
@@ -38,8 +38,6 @@ jobs:
         source venv/bin/activate
         pip install --upgrade pip
         pip install oci-cli
-        # curl -L https://raw.githubusercontent.com/oracle/oci-cli/master/scripts/install/install.sh | bash -s -- --accept-all-defaults
-        # echo "$HOME/bin" >> $GITHUB_PATH
 
     - name: Configure OCI CLI
       run: |
@@ -70,3 +68,7 @@ jobs:
         kubectl set image deployment/${{ env.DEPLOYMENT_NAME }} \
           ${{ env.CONTAINER_NAME }}=${{ env.OCIR_ENDPOINT }}/${{ secrets.OCI_STORAGE_NAMESPACE }}/${{ env.REPO_NAME }}/${{ env.IMAGE_TAG }} \
           --namespace ${{ env.K8S_NAMESPACE }}
+
+    - name: Wait for rollout to finish
+      run: |
+        kubectl rollout status deployment/${{ env.DEPLOYMENT_NAME }} --namespace=${{ env.K8S_NAMESPACE }}
