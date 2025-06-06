@@ -48,7 +48,6 @@ jobs:
         chmod +x install.sh
         ./install.sh --accept-all-defaults          
         export PATH=$PATH:/home/runner/bin
-        exec -l $SHELL
 
     - name: 'Fix Config File Permissions'
       run: |
