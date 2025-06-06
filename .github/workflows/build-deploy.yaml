@@ -47,11 +47,10 @@ jobs:
         curl -L -O https://raw.githubusercontent.com/oracle/oci-cli/master/scripts/install/install.sh
         chmod +x install.sh
         ./install.sh --accept-all-defaults          
-        export PATH=$PATH:/home/runner/bin
 
     - name: 'Fix Config File Permissions'
       run: |
-          export PATH=$PATH:/home/runner/bin
+          echo "export PATH=\$PATH:/home/runner/bin" >> $GITHUB_ENV
           oci setup repair-file-permissions --file ~/.oci/key.pem
           oci setup repair-file-permissions --file ~/.oci/config
 
