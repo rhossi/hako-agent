@@ -4,16 +4,15 @@ from langchain_community.vectorstores.oraclevs import OracleVS
 from langchain_openai import ChatOpenAI
 import os
 from langchain_community.embeddings import OCIGenAIEmbeddings
+from oracle.utils import LLMFactory
 
 COMPARTMENT_ID = os.getenv("COMPARTMENT_ID")
-# AUTH_TYPE = os.getenv("AUTH_TYPE")
-# CONFIG_PROFILE = os.getenv("CONFIG_PROFILE")
 OCI_INFERENCE_ENDPOINT = os.getenv("OCI_INFERENCE_ENDPOINT")
 EMBEDDINGS_TABLE_NAME = os.getenv("EMBEDDINGS_TABLE_NAME")
 TAVILY_API_KEY = os.getenv("TAVILY_API_KEY")
 
 def _query_writer(question: str):
-    search_llm = ChatOpenAI(model="gpt-4.1-nano-2025-04-14")
+    search_llm = LLMFactory.create_llm("xai:grok-3-mini")
     query_writer_instructions = """
         Your goal is to generate a targeted web search query.
 
