@@ -8,7 +8,6 @@ on:
 
 env:
   REPO_NAME: "hako-agent"
-  IMAGE_NAME: "hako-agent:latest"
   IMAGE_TAG: "hako-agent:${{ github.sha }}"
   IMAGE_TAG_LATEST: "hako-agent:latest"
   OCIR_ENDPOINT: "ord.ocir.io"
@@ -70,11 +69,14 @@ jobs:
 
     - name: Tag the Docker image
       run: 
-        docker tag ${{ env.IMAGE_TAG }} ${{ env.OCIR_ENDPOINT }}/${{ secrets.OCI_STORAGE_NAMESPACE }}/${{ env.REPO_NAME }}/${{ env.IMAGE_TAG }}
-        docker tag ${{ env.IMAGE_TAG_LATEST }} ${{ env.OCIR_ENDPOINT }}/${{ secrets.OCI_STORAGE_NAMESPACE }}/${{ env.REPO_NAME }}/${{ env.IMAGE_TAG_LATEST }}
+        docker tag ${{ env.IMAGE_TAG }} \
+        ${{ env.OCIR_ENDPOINT }}/${{ secrets.OCI_STORAGE_NAMESPACE }}/${{ env.REPO_NAME }}/${{ env.IMAGE_TAG }} \
+        ${{ env.OCIR_ENDPOINT }}/${{ secrets.OCI_STORAGE_NAMESPACE }}/${{ env.REPO_NAME }}/${{ env.IMAGE_TAG_LATEST }}
 
     - name: Push the Docker image
-      run: docker push ${{ env.OCIR_ENDPOINT }}/${{ secrets.OCI_STORAGE_NAMESPACE }}/${{ env.REPO_NAME }}/${{ env.IMAGE_TAG }}
+      run: 
+        docker push ${{ env.OCIR_ENDPOINT }}/${{ secrets.OCI_STORAGE_NAMESPACE }}/${{ env.REPO_NAME }}/${{ env.IMAGE_TAG }}
+        docker push ${{ env.OCIR_ENDPOINT }}/${{ secrets.OCI_STORAGE_NAMESPACE }}/${{ env.REPO_NAME }}/${{ env.IMAGE_TAG_LATEST }}
 
     - name: Deploy new image to OKE
       run: |
