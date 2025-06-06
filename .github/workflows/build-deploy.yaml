@@ -8,8 +8,8 @@ on:
 
 env:
   REPO_NAME: "hako-agent"
+  IMAGE_NAME: "hako-agent:latest"
   IMAGE_TAG: "hako-agent:${{ github.sha }}"
-  IMAGE_TAG_LATEST: "hako-agent:latest"
   OCIR_ENDPOINT: "ord.ocir.io"
   K8S_NAMESPACE: "default"
   DEPLOYMENT_NAME: "hako-agent"
@@ -68,17 +68,11 @@ jobs:
       run: echo "${{ secrets.OCI_AUTH_TOKEN }}" | docker login ${{ env.OCIR_ENDPOINT }} -u "${{ secrets.OCI_STORAGE_NAMESPACE }}/${{ secrets.OCI_EMAIL }}" --password-stdin
 
     - name: Tag the Docker image
-      run: |
-        docker tag ${{ env.IMAGE_TAG }} \
-        ${{ env.OCIR_ENDPOINT }}/${{ secrets.OCI_STORAGE_NAMESPACE }}/${{ env.REPO_NAME }}/${{ env.IMAGE_TAG }}
-        
-        docker tag ${{ env.IMAGE_TAG }} \
-        ${{ env.OCIR_ENDPOINT }}/${{ secrets.OCI_STORAGE_NAMESPACE }}/${{ env.REPO_NAME }}/${{ env.IMAGE_TAG_LATEST }}
+      run: 
+        docker tag ${{ env.IMAGE_TAG }} ${{ env.OCIR_ENDPOINT }}/${{ secrets.OCI_STORAGE_NAMESPACE }}/${{ env.REPO_NAME }}/${{ env.IMAGE_TAG }}
 
     - name: Push the Docker image
-      run: |
-        docker push ${{ env.OCIR_ENDPOINT }}/${{ secrets.OCI_STORAGE_NAMESPACE }}/${{ env.REPO_NAME }}:${{ env.IMAGE_TAG }}
-        docker push ${{ env.OCIR_ENDPOINT }}/${{ secrets.OCI_STORAGE_NAMESPACE }}/${{ env.REPO_NAME }}:${{ env.IMAGE_TAG_LATEST }}
+      run: docker push ${{ env.OCIR_ENDPOINT }}/${{ secrets.OCI_STORAGE_NAMESPACE }}/${{ env.REPO_NAME }}/${{ env.IMAGE_TAG }}
 
     - name: Deploy new image to OKE
       run: |
