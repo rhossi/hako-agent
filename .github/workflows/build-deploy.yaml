@@ -47,10 +47,12 @@ jobs:
         curl -L -O https://raw.githubusercontent.com/oracle/oci-cli/master/scripts/install/install.sh
         chmod +x install.sh
         ./install.sh --accept-all-defaults          
+        export PATH=$PATH:/home/runner/bin
+        exec -l $SHELL
 
     - name: 'Fix Config File Permissions'
       run: |
-          echo "export PATH=\$PATH:/home/runner/bin" >> $GITHUB_ENV
+          export PATH=$PATH:/home/runner/bin
           oci setup repair-file-permissions --file ~/.oci/key.pem
           oci setup repair-file-permissions --file ~/.oci/config
 
@@ -73,19 +75,11 @@ jobs:
 
     - name: Deploy new image to OKE
       run: |
-        OCI_PATH=$(command -v oci)
+        export PATH=$PATH:/home/runner/bin
+        kubectl set image deployment/${{ env.DEPLOYMENT_NAME }} \
+          ${{ env.CONTAINER_NAME }}=${{ env.OCIR_ENDPOINT }}/${{ secrets.OCI_STORAGE_NAMESPACE }}/${{ env.REPO_NAME }}/${{ env.IMAGE_TAG }} \
+          --namespace ${{ env.K8S_NAMESPACE }}
 
-        if [ -z "$OCI_PATH" ]; then
-          echo "OCI CLI not found in PATH."
-          exit 1
-        fi
-
-        echo "OCI CLI found at: $OCI_PATH"
-        "$OCI_PATH" --version
-        # kubectl set image deployment/${{ env.DEPLOYMENT_NAME }} \
-        #   ${{ env.CONTAINER_NAME }}=${{ env.OCIR_ENDPOINT }}/${{ secrets.OCI_STORAGE_NAMESPACE }}/${{ env.REPO_NAME }}/${{ env.IMAGE_TAG }} \
-        #   --namespace ${{ env.K8S_NAMESPACE }}
-
-    # - name: Wait for rollout to finish
-    #   run: |
-    #     kubectl rollout status deployment/${{ env.DEPLOYMENT_NAME }} --namespace=${{ env.K8S_NAMESPACE }}
+    - name: Wait for rollout to finish
+      run: |
+        kubectl rollout status deployment/${{ env.DEPLOYMENT_NAME }} --namespace=${{ env.K8S_NAMESPACE }}
