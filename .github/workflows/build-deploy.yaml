@@ -68,15 +68,17 @@ jobs:
       run: echo "${{ secrets.OCI_AUTH_TOKEN }}" | docker login ${{ env.OCIR_ENDPOINT }} -u "${{ secrets.OCI_STORAGE_NAMESPACE }}/${{ secrets.OCI_EMAIL }}" --password-stdin
 
     - name: Tag the Docker image
-      run: 
+      run: |
         docker tag ${{ env.IMAGE_TAG }} \
-        ${{ env.OCIR_ENDPOINT }}/${{ secrets.OCI_STORAGE_NAMESPACE }}/${{ env.REPO_NAME }}/${{ env.IMAGE_TAG }} \
+        ${{ env.OCIR_ENDPOINT }}/${{ secrets.OCI_STORAGE_NAMESPACE }}/${{ env.REPO_NAME }}/${{ env.IMAGE_TAG }}
+        
+        docker tag ${{ env.IMAGE_TAG }} \
         ${{ env.OCIR_ENDPOINT }}/${{ secrets.OCI_STORAGE_NAMESPACE }}/${{ env.REPO_NAME }}/${{ env.IMAGE_TAG_LATEST }}
 
     - name: Push the Docker image
-      run: 
-        docker push ${{ env.OCIR_ENDPOINT }}/${{ secrets.OCI_STORAGE_NAMESPACE }}/${{ env.REPO_NAME }}/${{ env.IMAGE_TAG }}
-        docker push ${{ env.OCIR_ENDPOINT }}/${{ secrets.OCI_STORAGE_NAMESPACE }}/${{ env.REPO_NAME }}/${{ env.IMAGE_TAG_LATEST }}
+      run: |
+        docker push ${{ env.OCIR_ENDPOINT }}/${{ secrets.OCI_STORAGE_NAMESPACE }}/${{ env.REPO_NAME }}:${{ env.IMAGE_TAG }}
+        docker push ${{ env.OCIR_ENDPOINT }}/${{ secrets.OCI_STORAGE_NAMESPACE }}/${{ env.REPO_NAME }}:${{ env.IMAGE_TAG_LATEST }}
 
     - name: Deploy new image to OKE
       run: |
