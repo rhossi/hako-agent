@@ -74,10 +74,11 @@ jobs:
 
     - name: Deploy new image to OKE
       run: |
-        kubectl set image deployment/${{ env.DEPLOYMENT_NAME }} \
-          ${{ env.CONTAINER_NAME }}=${{ env.OCIR_ENDPOINT }}/${{ secrets.OCI_STORAGE_NAMESPACE }}/${{ env.REPO_NAME }}/${{ env.IMAGE_TAG }} \
-          --namespace ${{ env.K8S_NAMESPACE }}
+        oci --version
+        # kubectl set image deployment/${{ env.DEPLOYMENT_NAME }} \
+        #   ${{ env.CONTAINER_NAME }}=${{ env.OCIR_ENDPOINT }}/${{ secrets.OCI_STORAGE_NAMESPACE }}/${{ env.REPO_NAME }}/${{ env.IMAGE_TAG }} \
+        #   --namespace ${{ env.K8S_NAMESPACE }}
 
-    - name: Wait for rollout to finish
-      run: |
-        kubectl rollout status deployment/${{ env.DEPLOYMENT_NAME }} --namespace=${{ env.K8S_NAMESPACE }}
+    # - name: Wait for rollout to finish
+    #   run: |
+    #     kubectl rollout status deployment/${{ env.DEPLOYMENT_NAME }} --namespace=${{ env.K8S_NAMESPACE }}
