@@ -74,7 +74,7 @@ jobs:
 
     - name: Deploy new image to OKE
       run: |
-        oci --version
+        which oci
         # kubectl set image deployment/${{ env.DEPLOYMENT_NAME }} \
         #   ${{ env.CONTAINER_NAME }}=${{ env.OCIR_ENDPOINT }}/${{ secrets.OCI_STORAGE_NAMESPACE }}/${{ env.REPO_NAME }}/${{ env.IMAGE_TAG }} \
         #   --namespace ${{ env.K8S_NAMESPACE }}
