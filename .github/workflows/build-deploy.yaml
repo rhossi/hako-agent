@@ -82,4 +82,5 @@ jobs:
 
     - name: Wait for rollout to finish
       run: |
+        export PATH=$PATH:/home/runner/bin
         kubectl rollout status deployment/${{ env.DEPLOYMENT_NAME }} --namespace=${{ env.K8S_NAMESPACE }}
