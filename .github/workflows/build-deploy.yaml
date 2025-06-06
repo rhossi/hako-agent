@@ -74,7 +74,15 @@ jobs:
 
     - name: Deploy new image to OKE
       run: |
-        which oci
+        OCI_PATH=$(command -v oci)
+
+        if [ -z "$OCI_PATH" ]; then
+          echo "OCI CLI not found in PATH."
+          exit 1
+        fi
+
+        echo "OCI CLI found at: $OCI_PATH"
+        "$OCI_PATH" --version
         # kubectl set image deployment/${{ env.DEPLOYMENT_NAME }} \
         #   ${{ env.CONTAINER_NAME }}=${{ env.OCIR_ENDPOINT }}/${{ secrets.OCI_STORAGE_NAMESPACE }}/${{ env.REPO_NAME }}/${{ env.IMAGE_TAG }} \
         #   --namespace ${{ env.K8S_NAMESPACE }}
