@@ -17,7 +17,8 @@ env:
   VERSION: ${{ github.sha }}
   OCI_CLI_REGION: "us-chicago-1"
 jobs:
-  build:
+  build-deploy:
+    if: "!contains(github.event.head_commit.message, 'Update image tag')"
     runs-on: ubuntu-latest
 
     steps:
@@ -73,6 +74,18 @@ jobs:
 
     - name: Push the Docker image
       run: docker push ${{ env.OCIR_ENDPOINT }}/${{ secrets.OCI_STORAGE_NAMESPACE }}/${{ env.REPO_NAME }}/${{ env.IMAGE_TAG }}
+
+    - name: Replace image tag in deploy.yaml
+      run: |
+        sed -i "s|image: .*/hako-agent:.*|image: us-chicago-1.ocir.io/ax7oybsfq96x/hako-agent/hako-agent:${{ github.sha }}|" k8s/deployment.yaml
+  
+    - name: Commit updated deploy.yaml
+      run: |
+        git config --global user.name "github-actions"
+        git config --global user.email "github-actions@github.com"
+        git add k8s/deploy.yaml
+        git commit -m "Update image tag to ${{ github.sha }}"
+        git push
 
     - name: Deploy new image to OKE
       run: |
