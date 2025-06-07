@@ -19,11 +19,6 @@ if os.getenv("APP_ENV", "dev").lower() == "dev":
 
 # Setup basic variables
 THREAD_ID = str(uuid.uuid4())
-COMPARTMENT_ID = os.getenv("COMPARTMENT_ID")
-AUTH_TYPE = os.getenv("AUTH_TYPE")
-CONFIG_PROFILE = os.getenv("CONFIG_PROFILE")
-OCI_INFERENCE_ENDPOINT = os.getenv("OCI_INFERENCE_ENDPOINT")
-SERPER_API_KEY = os.getenv("SERPER_API_KEY")
 
 # initialize the FastAPI app
 app = FastAPI()
