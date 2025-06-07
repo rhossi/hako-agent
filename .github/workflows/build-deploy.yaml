@@ -79,11 +79,11 @@ jobs:
       run: |
         sed -i "s|image: .*/hako-agent:.*|image: us-chicago-1.ocir.io/ax7oybsfq96x/hako-agent/hako-agent:${{ github.sha }}|" k8s/deployment.yaml
   
-    - name: Commit updated deploy.yaml
+    - name: Commit updated deployment.yaml
       run: |
         git config --global user.name "github-actions"
         git config --global user.email "github-actions@github.com"
-        git add k8s/deploy.yaml
+        git add k8s/deployment.yaml
         git commit -m "Update image tag to ${{ github.sha }}"
         git push
 
