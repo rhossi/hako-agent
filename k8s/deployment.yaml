@@ -81,3 +81,14 @@ spec:
                 secretKeyRef:
                   name: hako-agent-secrets
                   key: TAVILY_API_KEY
+            - name: LANGSMITH_TRACING
+              value: "true"
+            - name: LANGSMITH_ENDPOINT
+              value: "https://api.smith.langchain.com"
+            - name: LANGSMITH_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: hako-agent-secrets
+                  key: LANGSMITH_API_KEY
+            - name: LANGSMITH_PROJECT
+              value: "pr-memorable-pressure-31"
