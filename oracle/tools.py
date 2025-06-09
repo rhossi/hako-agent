@@ -33,32 +33,28 @@ def _tavily_search(query: str, **kwargs):
 
 def web_search(query: str):
     """search the web"""
-    print("web_search")
     return _tavily_search(query=query)
     
 def search_oracle_customer_references(question: str):
     """search for oracle customer references"""
-    print("search_oracle_customer_references")
     query = _query_writer(question)
-    return _tavily_search(query=query,search_depth="advanced",include_domains=["oracle.com/customers"])
+    return _tavily_search(query=query,
+                          search_depth="advanced",
+                          include_domains=["oracle.com/customers"])
 
-def _create_oci_genai_embeddings():
+def search_oracle_marketplace(question: str):
+    """Search the Oracle Cloud Marketplace for applications and solution integrators (SIs) that match the customer's request"""
+
     app_env = os.getenv("APP_ENV", "dev").lower()
     auth_type = "API_KEY" if app_env == "dev" else "RESOURCE_PRINCIPAL"
 
-    return OCIGenAIEmbeddings(
+    embeddings = OCIGenAIEmbeddings(
         model_id="cohere.embed-multilingual-v3.0",
         service_endpoint=OCI_INFERENCE_ENDPOINT,
         truncate="NONE",
         compartment_id=COMPARTMENT_ID,
         auth_type=auth_type,
     )
-
-def search_oracle_marketplace(question: str):
-    """Search the Oracle Cloud Marketplace for applications and solution integrators (SIs) that match the customer's request"""
-    print("search_oracle_marketplace")
-
-    embeddings = _create_oci_genai_embeddings()
 
     connection = get_oracle_connection()
 
@@ -83,6 +79,6 @@ def search_oracle_marketplace(question: str):
 
 def search_oracle_documentation(question: str):
     """search oracle documentation"""
-    print("search_oracle_documentation")
+
     query = _query_writer(question)
     return _tavily_search(query=query,search_depth="advanced",include_domains=["docs.oracle.com/en"])
