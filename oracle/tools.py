@@ -5,11 +5,29 @@ from langchain_openai import ChatOpenAI
 import os
 from langchain_community.embeddings import OCIGenAIEmbeddings
 from oracle.utils import LLMFactory
+import functools
+import traceback
 
 COMPARTMENT_ID = os.getenv("COMPARTMENT_ID")
 OCI_INFERENCE_ENDPOINT = os.getenv("OCI_INFERENCE_ENDPOINT")
 EMBEDDINGS_TABLE_NAME = os.getenv("EMBEDDINGS_TABLE_NAME")
 TAVILY_API_KEY = os.getenv("TAVILY_API_KEY")
+
+def log_tool(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        print(f"[TOOL] Calling: {func.__name__}")
+        print(f"[TOOL] Args: {args}")
+        print(f"[TOOL] Kwargs: {kwargs}")
+        try:
+            result = func(*args, **kwargs)
+            print(f"[TOOL] Result: {result}")
+            return result
+        except Exception as e:
+            print(f"[TOOL ERROR] {func.__name__} failed with error: {e}")
+            print(traceback.format_exc())
+            raise
+    return wrapper
 
 def _query_writer(question: str):
     search_llm = LLMFactory.create_llm("xai:grok-3-mini")
@@ -31,10 +49,12 @@ def _tavily_search(query: str, **kwargs):
     client = TavilyClient(TAVILY_API_KEY)
     return client.search(query=query,**kwargs)
 
+@log_tool
 def web_search(query: str):
     """search the web"""
     return _tavily_search(query=query)
     
+@log_tool
 def search_oracle_customer_references(question: str):
     """search for oracle customer references"""
     query = _query_writer(question)
@@ -42,6 +62,7 @@ def search_oracle_customer_references(question: str):
                           search_depth="advanced",
                           include_domains=["oracle.com/customers"])
 
+@log_tool
 def search_oracle_marketplace(question: str):
     """Search the Oracle Cloud Marketplace for applications and solution integrators (SIs) that match the customer's request"""
 
@@ -77,6 +98,7 @@ def search_oracle_marketplace(question: str):
 
     return solutions
 
+@log_tool
 def search_oracle_documentation(question: str):
     """search oracle documentation"""
 
