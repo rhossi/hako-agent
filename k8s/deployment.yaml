@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: hako-agent
-          image: us-chicago-1.ocir.io/ax7oybsfq96x/hako-agent/hako-agent:2b346218ad195025a937226c53c3bf854d08bd60
+          image: us-chicago-1.ocir.io/ax7oybsfq96x/hako-agent/hako-agent:dcab567a8f10194a84a9a741be97b7fa4c1aab0a
           imagePullPolicy: Always
           ports:
             - containerPort: 8000
