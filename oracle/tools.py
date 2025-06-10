@@ -67,6 +67,7 @@ def search_oracle_marketplace(question: str):
     """Search the Oracle Cloud Marketplace for applications and solution integrators (SIs) that match the customer's request"""
 
     app_env = os.getenv("APP_ENV", "dev").lower()
+    print(f"[TOOL] APP_ENV: {app_env}")
     auth_type = "API_KEY" if app_env == "dev" else "RESOURCE_PRINCIPAL"
 
     embeddings = OCIGenAIEmbeddings(
