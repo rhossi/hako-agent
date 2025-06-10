@@ -92,3 +92,5 @@ spec:
                   key: LANGSMITH_API_KEY
             - name: LANGSMITH_PROJECT
               value: "pr-memorable-pressure-31"
+            - name: APP_ENV
+              value: "prod"
