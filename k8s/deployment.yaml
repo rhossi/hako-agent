@@ -5,8 +5,6 @@ metadata:
   labels:
     app: hako-agent
 spec:
-  serviceAccountName: hakoagentserviceaccount
-  automountServiceAccountToken: true
   replicas: 1
   selector:
     matchLabels:
