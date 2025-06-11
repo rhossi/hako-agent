@@ -5,6 +5,8 @@ metadata:
   labels:
     app: hako-agent
 spec:
+  serviceAccountName: hakoagentserviceaccount
+  automountServiceAccountToken: true
   replicas: 1
   selector:
     matchLabels:
@@ -36,11 +38,6 @@ spec:
                 secretKeyRef:
                   name: hako-agent-secrets
                   key: CO_API_KEY
-            - name: LANGSMITH_TRACING
-              valueFrom:
-                secretKeyRef:
-                  name: hako-agent-secrets
-                  key: LANGSMITH_TRACING
             - name: LANGSMITH_API_KEY
               valueFrom:
                 secretKeyRef:
@@ -85,11 +82,6 @@ spec:
               value: "true"
             - name: LANGSMITH_ENDPOINT
               value: "https://api.smith.langchain.com"
-            - name: LANGSMITH_API_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: hako-agent-secrets
-                  key: LANGSMITH_API_KEY
             - name: LANGSMITH_PROJECT
               value: "pr-memorable-pressure-31"
             - name: APP_ENV
