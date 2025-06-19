@@ -68,14 +68,16 @@ def search_oracle_marketplace(question: str):
 
     app_env = os.getenv("APP_ENV", "dev").lower()
     print(f"[TOOL] APP_ENV: {app_env}")
-    auth_type = "API_KEY" if app_env == "dev" else "INSTANCE_PRINCIPAL"
+    auth_type = "API_KEY" if app_env == "dev" else "RESOURCE_PRINCIPAL"
 
+    print(f"[AUTH_TYPE] {auth_type}")
+    
     embeddings = OCIGenAIEmbeddings(
         model_id="cohere.embed-multilingual-v3.0",
         service_endpoint=OCI_INFERENCE_ENDPOINT,
         truncate="NONE",
         compartment_id=COMPARTMENT_ID,
-        auth_type=auth_type,
+        auth_type="auth_type",
     )
 
     connection = get_oracle_connection()
