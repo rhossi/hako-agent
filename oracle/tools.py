@@ -69,9 +69,6 @@ def search_oracle_marketplace(question: str):
     app_env = os.getenv("APP_ENV", "dev").lower()
     print(f"[TOOL] APP_ENV: {app_env}")
     auth_type = "API_KEY" if app_env == "dev" else "INSTANCE_PRINCIPAL"
-    rps = oci.auth.signers.get_resource_principals_signer()
-    print("Resource Principal Security Token")
-    print(rps.get_security_token())
 
     embeddings = OCIGenAIEmbeddings(
         model_id="cohere.embed-multilingual-v3.0",
