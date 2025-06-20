@@ -75,7 +75,7 @@ def search_oracle_marketplace(question: str):
         service_endpoint=OCI_INFERENCE_ENDPOINT,
         truncate="NONE",
         compartment_id=COMPARTMENT_ID,
-        auth_type=auth_type,
+        # auth_type=auth_type,
     )
 
     connection = get_oracle_connection()
