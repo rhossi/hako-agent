@@ -60,21 +60,7 @@ jobs:
           oci setup repair-file-permissions --file ~/.oci/key.pem
           oci setup repair-file-permissions --file ~/.oci/config
           cd ~/.oci
-          ls -la
-
-    - name: 'Copy Config & Key Files'
-      run: |
-        cp ~/.oci/config ~/.oci/config
-        cp ~/.oci/key.pem ~/.oci/key.pem
-
-    - name: 'Create OCI Directory'
-      run: |
-        mkdir -p ~/.oci
-
-    - name: 'Copy Config & Key Files'
-      run: |
-        cp ~/.oci/config ~/.oci/config
-        cp ~/.oci/key.pem ~/.oci/key.pem
+          pwd
 
     - name: Configure kubeconfig
       run: |
