@@ -36,29 +36,29 @@ jobs:
 
     - name: 'Write Config & Key Files'
       run: |
-        mkdir ~/.oci
-        echo "${{secrets.OCI_CLI_KEY_CONTENT}}" >> ~/.oci/key.pem
+        mkdir $HOME/.oci
+        echo "${{secrets.OCI_CLI_KEY_CONTENT}}" >> $HOME/.oci/key.pem
 
-        echo "[DEFAULT]" >> ~/.oci/config
-        echo "user=${{secrets.OCI_CLI_USER}}" >> ~/.oci/config
-        echo "fingerprint=${{secrets.OCI_CLI_FINGERPRINT}}" >> ~/.oci/config
-        echo "tenancy=${{secrets.OCI_CLI_TENANCY}}" >> ~/.oci/config
-        echo "region=${{env.OCI_CLI_REGION}}" >> ~/.oci/config         
-        echo "key_file=~/.oci/key.pem" >> ~/.oci/config
+        echo "[DEFAULT]" >> $HOME/.oci/config
+        echo "user=${{secrets.OCI_CLI_USER}}" >> $HOME/.oci/config
+        echo "fingerprint=${{secrets.OCI_CLI_FINGERPRINT}}" >> $HOME/.oci/config
+        echo "tenancy=${{secrets.OCI_CLI_TENANCY}}" >> $HOME/.oci/config
+        echo "region=${{env.OCI_CLI_REGION}}" >> $HOME/.oci/config         
+        echo "key_file=$HOME/.oci/key.pem" >> $HOME/.oci/config
 
     - name: 'Install OCI CLI'
       run: |
         curl -L -O https://raw.githubusercontent.com/oracle/oci-cli/master/scripts/install/install.sh
         chmod +x install.sh
         ./install.sh --accept-all-defaults          
-        export PATH=$PATH:/home/runner/bin
+        export PATH=$PATH:$HOME/bin
         exec -l $SHELL
 
     - name: 'Fix Config File Permissions'
       run: |
-          export PATH=$PATH:/home/runner/bin
-          oci setup repair-file-permissions --file ~/.oci/key.pem
-          oci setup repair-file-permissions --file ~/.oci/config
+          export PATH=$PATH:$HOME/bin
+          oci setup repair-file-permissions --file $HOME/.oci/key.pem
+          oci setup repair-file-permissions --file $HOME/.oci/config
 
     - name: Configure kubeconfig
       run: |
@@ -92,12 +92,12 @@ jobs:
 
     - name: Deploy new image to OKE
       run: |
-        export PATH=$PATH:/home/runner/bin
+        export PATH=$PATH:$HOME/bin
         kubectl set image deployment/${{ env.DEPLOYMENT_NAME }} \
           ${{ env.CONTAINER_NAME }}=${{ env.OCIR_ENDPOINT }}/${{ secrets.OCI_STORAGE_NAMESPACE }}/${{ env.REPO_NAME }}/${{ env.IMAGE_TAG }} \
           --namespace ${{ env.K8S_NAMESPACE }}
 
     - name: Wait for rollout to finish
       run: |
-        export PATH=$PATH:/home/runner/bin
+        export PATH=$PATH:$HOME/bin
         kubectl rollout status deployment/${{ env.DEPLOYMENT_NAME }} --namespace=${{ env.K8S_NAMESPACE }}
