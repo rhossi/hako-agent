@@ -65,19 +65,20 @@ def search_oracle_customer_references(question: str):
 @log_tool
 def search_oracle_marketplace(question: str):
     """Search the Oracle Cloud Marketplace for applications and solution integrators (SIs) that match the customer's request"""
-
+    import oci
     app_env = os.getenv("APP_ENV", "dev").lower()
     print(f"[TOOL] APP_ENV: {app_env}")
     auth_type = "API_KEY" if app_env == "dev" else "RESOURCE_PRINCIPAL"
+    rps = oci.auth.signers.get_resource_principals_signer()
+    print("Resource Principal Security Token")
+    print(rps.get_security_token())
 
-    print(f"[AUTH_TYPE] {auth_type}")
-    
     embeddings = OCIGenAIEmbeddings(
         model_id="cohere.embed-multilingual-v3.0",
         service_endpoint=OCI_INFERENCE_ENDPOINT,
         truncate="NONE",
         compartment_id=COMPARTMENT_ID,
-        auth_type="auth_type",
+        auth_type=auth_type,
     )
 
     connection = get_oracle_connection()
