@@ -12,8 +12,11 @@ RUN apt-get update && apt-get install -y \
 # Copy requirements first to leverage Docker cache
 COPY requirements.txt .
 
-COPY ~/.oci/config ~/.oci/config
-COPY ~/.oci/key.pem ~/.oci/key.pem
+# Create OCI directory and copy credentials
+RUN mkdir -p /root/.oci
+COPY .oci/config /root/.oci/config
+COPY .oci/key.pem /root/.oci/key.pem
+RUN chmod 600 /root/.oci/config /root/.oci/key.pem
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
