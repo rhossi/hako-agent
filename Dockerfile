@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1
+
 # Use Python 3.12 slim image as base
 FROM python:3.12-slim
 
@@ -12,11 +14,16 @@ RUN apt-get update && apt-get install -y \
 # Copy requirements first to leverage Docker cache
 COPY requirements.txt .
 
-# Create OCI directory and copy credentials
-RUN mkdir -p /root/.oci
-COPY .oci/config /root/.oci/config
-COPY .oci/key.pem /root/.oci/key.pem
-RUN chmod 600 /root/.oci/config /root/.oci/key.pem
+# Create OCI directory and copy credentials from the runner's home directory
+# This requires the build to be run with Docker BuildKit (buildx).
+# It mounts the OCI config and key from the host runner, then copies them
+# into the image's filesystem.
+RUN --mount=type=bind,source=/home/runner/.oci/config,target=/tmp/config \
+    --mount=type=bind,source=/home/runner/.oci/key.pem,target=/tmp/key.pem \
+    mkdir -p /root/.oci && \
+    cp /tmp/config /root/.oci/config && \
+    cp /tmp/key.pem /root/.oci/key.pem && \
+    chmod 600 /root/.oci/config /root/.oci/key.pem
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
