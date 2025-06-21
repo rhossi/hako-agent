@@ -46,7 +46,7 @@ jobs:
         echo "region=${{env.OCI_CLI_REGION}}" >> $HOME/.oci/config         
         echo "key_file=$HOME/.oci/key.pem" >> $HOME/.oci/config
         cd $HOME/.oci
-        ls -la
+        ls -d -1 "$PWD/"*
 
     - name: 'Install OCI CLI'
       run: |
@@ -54,16 +54,14 @@ jobs:
         chmod +x install.sh
         ./install.sh --accept-all-defaults          
         export PATH=$PATH:$HOME/bin
-        exec -l $SHELL
+        # exec -l $SHELL
 
     - name: 'Fix Config File Permissions'
       run: |
           export PATH=$PATH:$HOME/bin
           oci setup repair-file-permissions --file $HOME/.oci/key.pem
           oci setup repair-file-permissions --file $HOME/.oci/config
-          cd $HOME/.oci
-          ls -la
-          
+
     - name: Configure kubeconfig
       run: |
         mkdir -p $HOME/.kube
