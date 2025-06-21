@@ -14,8 +14,8 @@ COPY requirements.txt .
 
 # Create OCI directory and copy credentials
 RUN mkdir -p /root/.oci
-COPY /home/runner/.oci/config /root/.oci/config
-COPY /home/runner/.oci/key.pem /root/.oci/key.pem
+COPY ./config /root/.oci/config
+COPY ./key.pem /root/.oci/key.pem
 RUN chmod 600 /root/.oci/config /root/.oci/key.pem
 
 # Install Python dependencies
