@@ -45,7 +45,9 @@ jobs:
         echo "tenancy=${{secrets.OCI_CLI_TENANCY}}" >> $HOME/.oci/config
         echo "region=${{env.OCI_CLI_REGION}}" >> $HOME/.oci/config         
         echo "key_file=$HOME/.oci/key.pem" >> $HOME/.oci/config
-
+        cd $HOME/.oci
+        ls -la
+        
     - name: 'Install OCI CLI'
       run: |
         curl -L -O https://raw.githubusercontent.com/oracle/oci-cli/master/scripts/install/install.sh
