@@ -66,9 +66,9 @@ def search_oracle_customer_references(question: str):
 def search_oracle_marketplace(question: str):
     """Search the Oracle Cloud Marketplace for applications and solution integrators (SIs) that match the customer's request"""
     import oci
-    app_env = os.getenv("APP_ENV", "dev").lower()
-    print(f"[TOOL] APP_ENV: {app_env}")
-    auth_type = "API_KEY" if app_env == "dev" else "INSTANCE_PRINCIPAL"
+    # app_env = os.getenv("APP_ENV", "dev").lower()
+    # print(f"[TOOL] APP_ENV: {app_env}")
+    # auth_type = "API_KEY" if app_env == "dev" else "INSTANCE_PRINCIPAL"
 
     embeddings = OCIGenAIEmbeddings(
         model_id="cohere.embed-multilingual-v3.0",
