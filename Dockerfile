@@ -16,8 +16,22 @@ COPY requirements.txt .
 RUN mkdir -p /root/.oci
 COPY ./config /root/.oci/config
 COPY ./key.pem /root/.oci/key.pem
-RUN chmod 600 /root/.oci/config /root/.oci/key.pem
+RUN sed -i 's|^key_file=.*|key_file=/root/.oci/key.pem|' /root/.oci/config \
+    && chmod 600 /root/.oci/config /root/.oci/key.pem
 
+# ... (previous lines in your Dockerfile)
+
+# Create OCI directory and copy credentials
+RUN mkdir -p /root/.oci
+COPY ./config /root/.oci/config
+COPY ./key.pem /root/.oci/key.pem
+
+# Use 'sed' to replace the key_file line in the config file,
+# then set the correct permissions for the config and key.
+RUN sed -i 's|^key_file=.*|key_file=/root/.oci/key.pem|' /root/.oci/config \
+    && chmod 600 /root/.oci/config /root/.oci/key.pem
+
+# ... (rest of your Dockerfile, like installing requirements)
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
