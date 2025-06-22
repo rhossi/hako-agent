@@ -10,8 +10,6 @@ def get_oracle_connection():
     # Connection parameters
     username = os.getenv("DB_USERNAME")
     password = os.getenv("DB_PASSWORD")
-    print(f"[UTILS] DB_USERNAME: {username}")
-    print(f"[UTILS] DB_PASSWORD: {password}")
     return get_oracle_connection_with_creds(username, password)
 
 def get_oracle_connection_with_creds(username, password):
